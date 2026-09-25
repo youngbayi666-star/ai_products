@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d24">
+  <meta name="referrer" content="no-referrer">
+  <title>ECHO WAVE · 音乐人格海报站</title>
+  <link rel="stylesheet" href="./styles.css?v=3">
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+  <section class="attract-screen" id="attract-screen" aria-labelledby="attract-title">
+    <canvas id="mural-canvas" aria-hidden="true"></canvas>
+    <div class="attract-top"><span class="attract-brand">ECHO<span>WAVE</span></span><span>LIVE FESTIVAL MURAL / 2026</span></div>
+    <div class="attract-copy"><p class="eyebrow"><span class="mini-line"></span> THE CROWD IS THE CANVAS</p><h1 id="attract-title">今晚的声音，<br><em>由我们一起画。</em></h1><p id="attract-description">选择你的音乐人格，生成一张专属海报，也为这场音乐节留下自己的声波。</p><button class="primary-btn attract-start" id="attract-start" type="button">点亮我的声波 <span aria-hidden="true">↗</span></button><span class="attract-footnote">无需登录 · 约 45 秒完成</span></div>
+    <div class="mural-counter"><span>TONIGHT'S ECHOES</span><strong id="echo-count">0000</strong><p>每一条声波，都来自一张现场海报</p></div>
+    <div class="mural-key" aria-label="四种音乐人格的声波颜色"><span><i class="key-pulse"></i>夜行节拍</span><span><i class="key-glow"></i>心动合唱</span><span><i class="key-roam"></i>日落漫游</span><span><i class="key-wild"></i>自由电波</span></div>
+  </section>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="ECHO WAVE 返回首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>ECHO<span>WAVE</span></strong><small>FESTIVAL EXPERIENCE</small></span>
+      </a>
+      <div class="event-tag"><span class="live-dot"></span> 现场互动中 <span class="tag-divider">/</span> 2026 MUSIC FEST</div>
+      <button class="reset-link" id="reset-top" type="button">清空重来 <span aria-hidden="true">↗</span></button>
+    </header>
+
+    <main class="main-grid">
+      <section class="workbench" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="mini-line"></span> YOUR SOUND, YOUR POSTER</p>
+          <h1 id="hero-title">把此刻，做成<br><em>你的主打歌。</em></h1>
+          <p class="hero-sub">选一种音乐人格，留下一句话。把音乐节的这一刻，变成只属于你的海报。</p>
+        </div>
+
+        <form id="poster-form" novalidate>
+          <fieldset class="choice-section">
+            <legend><span class="step-no">01</span> 你是哪种音乐人格？ <span class="legend-hint">选一个</span></legend>
+            <div class="persona-grid" id="personas">
+              <button class="persona-card selected" type="button" data-persona="pulse" aria-pressed="true"><span class="card-art art-pulse" aria-hidden="true"></span><span class="card-copy"><strong>夜行节拍</strong><small>低音一响，世界开场</small></span><span class="select-indicator" aria-hidden="true"></span></button>
+              <button class="persona-card" type="button" data-persona="glow" aria-pressed="false"><span class="card-art art-glow" aria-hidden="true"></span><span class="card-copy"><strong>心动合唱</strong><small>和所有人一起发光</small></span><span class="select-indicator" aria-hidden="true"></span></button>
+              <button class="persona-card" type="button" data-persona="roam" aria-pressed="false"><span class="card-art art-roam" aria-hidden="true"></span><span class="card-copy"><strong>日落漫游</strong><small>跟着旋律走到天黑</small></span><span class="select-indicator" aria-hidden="true"></span></button>
+              <button class="persona-card" type="button" data-persona="wild" aria-pressed="false"><span class="card-art art-wild" aria-hidden="true"></span><span class="card-copy"><strong>自由电波</strong><small>不按常理，自成频率</small></span><span class="select-indicator" aria-hidden="true"></span></button>
+            </div>
+          </fieldset>
+
+          <fieldset class="choice-section style-section">
+            <legend><span class="step-no">02</span> 给海报选个视觉风格 <span class="legend-hint">选一个</span></legend>
+            <div class="style-grid" id="styles">
+              <button type="button" class="style-pill selected" data-style="neon" aria-pressed="true"><span class="style-swatch swatch-neon"></span>霓虹频谱</button>
+              <button type="button" class="style-pill" data-style="sunset" aria-pressed="false"><span class="style-swatch swatch-sunset"></span>落日胶片</button>
+              <button type="button" class="style-pill" data-style="silver" aria-pressed="false"><span class="style-swatch swatch-silver"></span>未来银幕</button>
+            </div>
+          </fieldset>
+
+          <div class="choice-section identity-section">
+            <div class="section-heading"><span class="step-no">03</span> 留下你的名字和一句话</div>
+            <div class="input-grid">
+              <label class="field"><span>你的昵称 <small>最多 12 字</small></span><input id="nickname" name="nickname" placeholder="例如：阿橙" maxlength="24" autocomplete="off" required></label>
+              <label class="field"><span>想留在海报上的话 <small>最多 24 字</small></span><input id="message" name="message" placeholder="例如：今晚，和世界同频" maxlength="48" autocomplete="off" required></label>
+            </div>
+            <div class="prompt-row"><span>试试这些灵感</span><button class="idea-chip" type="button" data-text="今晚，和世界同频">今晚，和世界同频</button><button class="idea-chip" type="button" data-text="把快乐调到最大声">把快乐调到最大声</button></div>
+            <p class="privacy-note">请勿输入手机号、账号或他人隐私。内容会显示在大屏海报上。</p>
+            <p class="form-error" id="form-error" role="alert" hidden></p>
+          </div>
+
+          <div class="action-row"><button id="generate" class="primary-btn" type="submit"><span>生成我的专属海报</span><span class="btn-arrow" aria-hidden="true">↗</span></button><span class="action-time">约 3 秒完成<br>无需登录</span></div>
+        </form>
+      </section>
+
+      <section class="preview-zone" aria-labelledby="preview-title">
+        <div class="preview-header"><div><p class="preview-overline">LIVE PREVIEW / 你的专属票根</p><h2 id="preview-title">每一种频率，都值得被看见。</h2></div><span class="preview-badge">01 / 01</span></div>
+        <div class="poster-stage">
+          <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="poster-frame"><canvas id="poster-canvas" width="1080" height="1440" aria-label="海报实时预览"></canvas><span class="poster-corner top-left"></span><span class="poster-corner bottom-right"></span></div>
+          <span class="stage-side-label">SOUND ON · MOMENT ON</span>
+        </div>
+        <div class="preview-footer"><span><i class="equalizer" aria-hidden="true"></i> ECHO WAVE 现场限定</span><span>你的海报，会和这一晚一样独一无二</span></div>
+      </section>
+    </main>
+
+    <footer class="bottom-bar"><span>现场体验 · 每人约 45 秒</span><span>与 ECHO WAVE 一起，留住这一拍</span><span id="idle-display">无操作 60 秒自动清屏</span></footer>
+  </div>
+
+  <div class="result-overlay" id="result-overlay" hidden>
+    <div class="result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="result-main"><p class="eyebrow"><span class="mini-line"></span> YOUR MOMENT IS READY</p><h2 id="result-title">这一拍，<br><em>属于你。</em></h2><p id="result-echo" class="result-echo">你的声波已经加入今晚。</p><p>扫码到手机保存高清海报，发给今晚和你一起唱的人。</p><div class="result-actions"><button id="download-btn" class="primary-btn" type="button">保存海报到本机 <span aria-hidden="true">↓</span></button><button id="again-btn" class="secondary-btn" type="button">再玩一次</button></div><div class="coupon-note"><strong>品牌惊喜</strong><span>带着海报到 ECHO WAVE 展台，解锁限定贴纸。演示活动，无实际兑奖。</span></div></div>
+      <div class="result-poster"><canvas id="result-canvas" width="1080" height="1440" aria-label="生成的专属海报"></canvas></div>
+      <div class="qr-panel"><span class="qr-label">SCAN TO KEEP</span><div class="qr-box"><img id="qr-image" alt="扫码在手机查看并保存海报" width="176" height="176"><span id="qr-fallback" hidden>二维码暂不可用<br>请复制分享链接</span></div><strong>扫码带走这一刻</strong><p>手机打开后可保存或分享</p><button class="copy-btn" id="copy-btn" type="button">复制分享链接</button><span class="qr-timer" id="result-timer">30 秒后自动清屏</span></div>
+      <button class="result-close" id="result-close" type="button" aria-label="关闭并清空内容">×</button>
+    </div>
+  </div>
+
+  <script src="./vendor/qrcode.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
