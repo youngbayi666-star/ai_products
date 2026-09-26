@@ -13,6 +13,7 @@ const appShell = document.querySelector('.app-shell');
 const generateButton = document.getElementById('generate');
 const qrImage = document.getElementById('qr-image');
 const qrFallback = document.getElementById('qr-fallback');
+const downloadLink = document.getElementById('download-btn');
 const attract = document.getElementById('attract-screen');
 const muralCanvas = document.getElementById('mural-canvas');
 const muralTitle = document.getElementById('attract-title');
@@ -25,6 +26,7 @@ let idleTimer;
 let resultInterval;
 let generationId = 0;
 let lanHost = '';
+let resultBlobUrl = '';
 
 if (['localhost', '127.0.0.1'].includes(location.hostname)) {
   fetch('./api/config').then(r => r.ok ? r.json() : null).then(data => { lanHost = data?.lanHost || ''; }).catch(() => {});
@@ -125,8 +127,14 @@ function startResultTimer() {
   }, 1000);
 }
 
-function openResult(payload) {
+async function openResult(payload, token) {
   renderPoster(resultCanvas, payload);
+  const blob = await new Promise(resolve => resultCanvas.toBlob(resolve, 'image/png'));
+  if (token !== generationId) return;
+  if (resultBlobUrl) URL.revokeObjectURL(resultBlobUrl);
+  resultBlobUrl = blob ? URL.createObjectURL(blob) : '';
+  downloadLink.href = resultBlobUrl || resultCanvas.toDataURL('image/png');
+  downloadLink.removeAttribute('aria-disabled');
   document.getElementById('result-echo').textContent = payload.echoId
     ? `第 ${String(payload.echoId).padStart(4, '0')} 道回声，已加入今晚的共振谱。`
     : '海报已生成；共振谱暂不可用，你仍可扫码保存。';
@@ -139,7 +147,7 @@ function openResult(payload) {
   appShell.inert = true;
   clearTimeout(idleTimer);
   startResultTimer();
-  document.getElementById('download-btn').focus();
+  downloadLink.focus();
 }
 
 qrImage.addEventListener('error', () => { qrImage.hidden = true; qrFallback.hidden = false; });
@@ -193,18 +201,8 @@ form.addEventListener('submit', async event => {
   generateButton.querySelector('span').textContent = '生成我的专属海报';
   if (echo) await showContribution(echo, thisGeneration);
   if (thisGeneration !== generationId) return;
-  openResult({ ...payload, echoId: echo?.id || 0 });
+  await openResult({ ...payload, echoId: echo?.id || 0 }, thisGeneration);
 });
-
-function downloadCanvas(canvas) {
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = 'ECHO-WAVE-我的音乐海报.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-document.getElementById('download-btn').addEventListener('click', () => downloadCanvas(resultCanvas));
 document.getElementById('copy-btn').addEventListener('click', async event => {
   const button = event.currentTarget;
   try {
@@ -242,6 +240,10 @@ function resetAll(toAttract = true) {
   select('style', 'data-style', 'neon');
   showError('');
   resultUrl = '';
+  downloadLink.removeAttribute('href');
+  downloadLink.setAttribute('aria-disabled', 'true');
+  if (resultBlobUrl) URL.revokeObjectURL(resultBlobUrl);
+  resultBlobUrl = '';
   qrImage.removeAttribute('src');
   resultCanvas.getContext('2d').clearRect(0, 0, resultCanvas.width, resultCanvas.height);
   document.getElementById('copy-btn').textContent = '复制分享链接';

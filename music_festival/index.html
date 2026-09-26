@@ -87,7 +87,7 @@
 
   <div class="result-overlay" id="result-overlay" hidden>
     <div class="result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title">
-      <div class="result-main"><p class="eyebrow"><span class="mini-line"></span> YOUR MOMENT IS READY</p><h2 id="result-title">这一拍，<br><em>属于你。</em></h2><p id="result-echo" class="result-echo">你的声波已经加入今晚。</p><p>扫码到手机保存高清海报，发给今晚和你一起唱的人。</p><div class="result-actions"><button id="download-btn" class="primary-btn" type="button">保存海报到本机 <span aria-hidden="true">↓</span></button><button id="again-btn" class="secondary-btn" type="button">再玩一次</button></div><div class="coupon-note"><strong>品牌惊喜</strong><span>带着海报到 ECHO WAVE 展台，解锁限定贴纸。演示活动，无实际兑奖。</span></div></div>
+      <div class="result-main"><p class="eyebrow"><span class="mini-line"></span> YOUR MOMENT IS READY</p><h2 id="result-title">这一拍，<br><em>属于你。</em></h2><p id="result-echo" class="result-echo">你的声波已经加入今晚。</p><p>扫码到手机保存高清海报，发给今晚和你一起唱的人。</p><div class="result-actions"><a id="download-btn" class="primary-btn" download="ECHO-WAVE-我的音乐海报.png" aria-disabled="true">保存海报到本机 <span aria-hidden="true">↓</span></a><button id="again-btn" class="secondary-btn" type="button">再玩一次</button></div><div class="coupon-note"><strong>品牌惊喜</strong><span>带着海报到 ECHO WAVE 展台，解锁限定贴纸。演示活动，无实际兑奖。</span></div></div>
       <div class="result-poster"><canvas id="result-canvas" width="1080" height="1440" aria-label="生成的专属海报"></canvas></div>
       <div class="qr-panel"><span class="qr-label">SCAN TO KEEP</span><div class="qr-box"><img id="qr-image" alt="扫码在手机查看并保存海报" width="176" height="176"><span id="qr-fallback" hidden>二维码暂不可用<br>请复制分享链接</span></div><strong>扫码带走这一刻</strong><p>手机打开后可保存或分享</p><button class="copy-btn" id="copy-btn" type="button">复制分享链接</button><span class="qr-timer" id="result-timer">30 秒后自动清屏</span></div>
       <button class="result-close" id="result-close" type="button" aria-label="关闭并清空内容">×</button>
@@ -95,6 +95,6 @@
   </div>
 
   <script src="./vendor/qrcode.js"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=2"></script>
 </body>
 </html>

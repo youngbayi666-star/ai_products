@@ -13,6 +13,10 @@ else {
 document.getElementById('phone-image').src = canvas.toDataURL('image/png');
 
 function getBlob() { return new Promise(resolve => canvas.toBlob(resolve, 'image/png')); }
+const saveLink = document.getElementById('save-phone');
+const posterBlob = await getBlob();
+saveLink.href = posterBlob ? URL.createObjectURL(posterBlob) : canvas.toDataURL('image/png');
+saveLink.removeAttribute('aria-disabled');
 async function copyLink() {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(window.location.href);
@@ -26,14 +30,8 @@ async function copyLink() {
   field.remove();
   return copied;
 }
-document.getElementById('save-phone').addEventListener('click', () => {
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = 'ECHO-WAVE-我的音乐海报.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  status.textContent = '海报已开始下载。若手机浏览器阻止下载，可长按图片保存。';
+saveLink.addEventListener('click', () => {
+  status.textContent = '若没有看到下载提示，请长按下方海报图片，选择保存图片。';
 });
 document.getElementById('native-share').addEventListener('click', async () => {
   try {
