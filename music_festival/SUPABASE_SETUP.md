@@ -2,6 +2,8 @@
 
 GitHub Pages 可以托管全部前端代码。所有人的声波要出现在同一张大屏上，还需要一个共同数据源；这里使用 Supabase 的浏览器直连 REST API，无须自己部署常驻服务器。
 
+**当前公开版已完成下列配置。** 本文保留为复现、迁移与安全检查说明。
+
 1. 在 [Supabase](https://supabase.com/dashboard) 登录并创建免费项目。
 2. 打开项目的 **SQL Editor**，执行 [`supabase/setup.sql`](supabase/setup.sql)。它只创建匿名声波表及读取、添加权限；访客不能修改或删除记录。
 3. 在项目 **Connect** 或 **Settings → API Keys** 复制 Project URL 和 **publishable key**（`sb_publishable_...`）。只把这两项填到 [`supabase-config.js`](supabase-config.js)；绝不要使用 secret 或 service_role key。

@@ -5,4 +5,4 @@ A growing home for AI product ideas, prototypes, and ongoing builds.
 
 [Open the ECHO WAVE prototype](https://youngbayi666-star.github.io/ai_products/music_festival/) · [Source and setup](music_festival/README.md)
 
-The GitHub Pages version runs as a static demo. Its QR code and poster generation work entirely in the browser. The mural becomes shared across devices after connecting a free Supabase project using [these setup steps](music_festival/SUPABASE_SETUP.md); until then, the page labels the mural as browser-local demo data.
+The GitHub Pages version generates posters and QR codes in the browser. Its anonymous mural is connected to a free Supabase project, so contributions appear across devices. See the [database setup and security notes](music_festival/SUPABASE_SETUP.md).

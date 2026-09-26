@@ -2,7 +2,7 @@ import { supabaseConfig } from './supabase-config.js';
 
 const staticHost = location.hostname.endsWith('.github.io')
   || new URLSearchParams(location.search).has('static-demo');
-const sharedWall = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
+export const sharedWall = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
 // GitHub Pages without a connected database offers an explicitly local demo.
 export const staticDemo = staticHost && !sharedWall;
 

@@ -1,6 +1,6 @@
 import { artworkReady, ensureArtwork, PERSONAS, renderPoster, encodePayload } from './poster.js';
 import { drawMural } from './mural.js';
-import { addEcho, getEchoes, qrSource, staticDemo } from './echo-client.js';
+import { addEcho, getEchoes, qrSource, sharedWall, staticDemo } from './echo-client.js';
 
 const form = document.getElementById('poster-form');
 const nickname = document.getElementById('nickname');
@@ -26,11 +26,14 @@ let resultInterval;
 let generationId = 0;
 let lanHost = '';
 
-if (!staticDemo) fetch('./api/config').then(r => r.ok ? r.json() : null).then(data => { lanHost = data?.lanHost || ''; }).catch(() => {});
+if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+  fetch('./api/config').then(r => r.ok ? r.json() : null).then(data => { lanHost = data?.lanHost || ''; }).catch(() => {});
+}
 if (staticDemo) {
   document.querySelector('.mural-counter p').textContent = '当前浏览器中的演示声波';
   document.querySelector('.attract-footnote').textContent = '静态演示 · 声波仅保存在当前浏览器';
 }
+if (sharedWall) document.querySelector('.mural-counter p').textContent = '所有设备共享的现场声波';
 
 function renderMural(highlightId = 0, progress = 1) {
   document.getElementById('echo-count').textContent = String(muralSnapshot.count || 0).padStart(4, '0');

@@ -2,7 +2,7 @@
 
 可运行的营销互动大屏演示：全场共振谱待机屏 → 选择音乐人格和视觉风格 → 输入昵称与一句话 → 生成海报并匿名加入共振谱 → 扫码到手机保存或分享。ECHO WAVE 是本原型使用的虚构品牌。
 
-**GitHub Pages 公开版**：在未连接 Supabase 时，共振谱是明确标注的单浏览器演示；要让所有人的声波跨设备汇入同一画面，按 [SUPABASE_SETUP.md](SUPABASE_SETUP.md) 启用免费项目。纯前端代码即可直连 Supabase，无须部署本地 Python 服务。
+**GitHub Pages 公开版**：已连接免费 Supabase 项目。所有访客提交的匿名声波都会汇入同一幅共振谱，其他设备的待机屏每 5 秒同步一次。前端直接调用 Supabase，无须部署本地 Python 服务。数据库结构和权限见 [SUPABASE_SETUP.md](SUPABASE_SETUP.md)。
 
 ## 启动
 
