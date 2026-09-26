@@ -1,5 +1,5 @@
 import { artworkReady, ensureArtwork, PERSONAS, renderPoster, encodePayload } from './poster.js';
-import { drawMural } from './mural.js';
+import { drawMural } from './mural.js?v=2';
 import { addEcho, getEchoes, qrSource, sharedWall, staticDemo } from './echo-client.js';
 
 const form = document.getElementById('poster-form');

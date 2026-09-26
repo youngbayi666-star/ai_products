@@ -1,6 +1,7 @@
 import { sampleWave } from './waveform.js';
 
 const COLORS = { pulse: '#dfff64', glow: '#ffaaa7', roam: '#ffc48d', wild: '#8cf1ed' };
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 function pseudo(seed) {
   let value = seed >>> 0;
@@ -8,6 +9,26 @@ function pseudo(seed) {
   value ^= value >>> 17;
   value ^= value << 5;
   return (value >>> 0) / 0xFFFFFFFF;
+}
+
+function muralGeometry(width, height) {
+  const cx = width < 700 ? width * .52 : width * .58;
+  const cy = height * .5;
+  const unit = Math.min(width < 700 ? width * 1.15 : width, height);
+  return { cx, cy, unit, base: unit * .18 };
+}
+
+export function muralPlacement(echo, width, height) {
+  const { cx, cy, unit, base } = muralGeometry(width, height);
+  const arc = .74 + pseudo(echo.seed + 3) * .40;
+  const jitter = (pseudo(echo.seed + echo.id * 97) - .5) * .24;
+  const middle = (echo.id * GOLDEN_ANGLE + jitter) % (Math.PI * 2) - Math.PI;
+  return {
+    cx, cy,
+    radius: base + unit * (.08 + (echo.id % 5) * .064),
+    angleStart: middle - arc / 2,
+    arc
+  };
 }
 
 export function drawMural(canvas, snapshot = { echoes: [] }, highlightId = 0, progress = 1) {
@@ -27,10 +48,7 @@ export function drawMural(canvas, snapshot = { echoes: [] }, highlightId = 0, pr
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, width, height);
 
-  const cx = width < 700 ? width * .55 : width * .69;
-  const cy = height * .52;
-  const unit = Math.min(width < 700 ? width * 1.15 : width, height);
-  const base = unit * .18;
+  const { cx, cy, unit, base } = muralGeometry(width, height);
   for (let i = 0; i < 4; i += 1) {
     ctx.beginPath();
     ctx.arc(cx, cy, base + i * unit * .092, 0, Math.PI * 2);
@@ -66,10 +84,8 @@ export function drawMural(canvas, snapshot = { echoes: [] }, highlightId = 0, pr
   const echoes = snapshot.echoes || [];
   echoes.forEach((echo, index) => {
     const isNew = echo.id === highlightId;
-    // Keep public contributions on the visible side of the wall, clear of the invitation copy.
-    const angleStart = -.98 + pseudo(echo.seed + echo.id * 97) * 1.78;
-    const radius = base + unit * (.08 + (echo.id % 5) * .064);
-    const arc = .74 + pseudo(echo.seed + 3) * .40;
+    // Evenly advance contributions around the circle, with a small seed-based variation.
+    const { angleStart, radius, arc } = muralPlacement(echo, width, height);
     const maxStep = Math.max(1, Math.round(96 * (isNew ? progress : 1)));
     ctx.beginPath();
     for (let step = 0; step <= maxStep; step += 1) {
