@@ -34,61 +34,113 @@ const mulberry32 = (seed) => () => {
 
 const pick = (items, random) => items[Math.floor(random() * items.length)];
 
-export function createMockRecords(count = 5760) {
+const weightedPick = (items, weights, random) => {
+  let cursor = random() * weights.reduce((sum, weight) => sum + weight, 0);
+  for (let index = 0; index < items.length; index += 1) {
+    cursor -= weights[index];
+    if (cursor <= 0) return items[index];
+  }
+  return items.at(-1);
+};
+
+export function createMockRecords(count = 14520) {
   const random = mulberry32(20260921);
   const records = [];
-  const countryWeights = ['英国', '英国', '英国', '法国', '法国', '德国', '德国', '荷兰', '比利时', '卢森堡'];
-  const paymentWeights = ['Card', 'Card', 'Card', 'PayPal', 'PayPal', 'ApplePay', 'GooglePay', 'WechatPay', 'Klarna', 'Riverty'];
-
-  for (let index = 0; index < count; index += 1) {
-    const customerType = random() < 0.38 ? '新客' : '老客';
-    const country = pick(countryWeights, random);
-    const category = pick(DIMENSIONS.category.options, random);
-    const paymentMethod = pick(paymentWeights, random);
-    const amountBand = random() < (category === '手机通讯' || category === '电脑办公' ? 0.46 : 0.2) ? '€500以上' : '€500以下';
-    const userId = `U${String(Math.floor(index * 0.72) + 10001)}`;
-    const registered = customerType === '新客' ? 1 : 0;
-    const recordDay = index % 60;
-    const date = recordDay < 31
-      ? `2026-08-${String(recordDay + 1).padStart(2, '0')}`
-      : `2026-09-${String(recordDay - 30).padStart(2, '0')}`;
-    const hour = String(Math.floor(index / 60) % 24).padStart(2, '0');
-    const minute = String(index * 13 % 60).padStart(2, '0');
-
-    let failureRate = 0.035;
-    if (customerType === '新客') failureRate += 0.018;
-    if (amountBand === '€500以上') failureRate += 0.02;
-    if (paymentMethod === 'Card') failureRate += 0.008;
-
-    const outcome = random();
-    const initLoss = outcome < failureRate ? 1 : 0;
-    const retailRiskLoss = !initLoss && outcome < failureRate + 0.047 ? 1 : 0;
-    const techRiskLoss = !initLoss && !retailRiskLoss && outcome < failureRate + 0.079 ? 1 : 0;
-    const threeDsBoost = country === '英国' || country === '法国' ? 0.016 : 0.004;
-    const threeDsLoss = !initLoss && !retailRiskLoss && !techRiskLoss && outcome < failureRate + 0.079 + 0.058 + threeDsBoost ? 1 : 0;
-    const payingLoss = !initLoss && !retailRiskLoss && !techRiskLoss && !threeDsLoss && outcome < failureRate + 0.079 + 0.058 + threeDsBoost + 0.052 ? 1 : 0;
-    const success = initLoss || retailRiskLoss || techRiskLoss || threeDsLoss || payingLoss ? 0 : 1;
-
-    records.push({
-      orderId: `O${String(index + 1).padStart(6, '0')}`,
-      userId,
-      date,
-      time: `${date} ${hour}:${minute}`,
-      customerType,
-      country,
-      amountBand,
-      category,
-      paymentMethod,
-      registered,
-      submitted: 1,
-      initLoss,
-      retailRiskLoss,
-      techRiskLoss,
-      threeDsLoss,
-      payingLoss,
-      success,
-    });
+  const start = new Date('2026-06-01T00:00:00Z');
+  const end = new Date('2026-09-29T00:00:00Z');
+  const days = [];
+  for (const date = new Date(start); date <= end; date.setUTCDate(date.getUTCDate() + 1)) {
+    days.push(new Date(date));
   }
+  const dayWeights = days.map((date, index) => {
+    const day = date.getUTCDay();
+    const weekdayFactor = day === 0 ? 0.7 : day === 6 ? 0.8 : day === 5 ? 0.96 : 1;
+    const growthFactor = 0.86 + 0.28 * index / Math.max(1, days.length - 1);
+    const fortnightSeasonality = 1 + 0.045 * Math.sin(index * Math.PI / 7);
+    const paydayLift = [1, 15, 25].includes(date.getUTCDate()) ? 1.08 : 1;
+    return weekdayFactor * growthFactor * fortnightSeasonality * paydayLift;
+  });
+  const totalWeight = dayWeights.reduce((sum, weight) => sum + weight, 0);
+  const dailyCounts = dayWeights.map((weight) => Math.floor(count * weight / totalWeight));
+  for (let remainder = count - dailyCounts.reduce((sum, value) => sum + value, 0), index = 0; remainder > 0; remainder -= 1, index += 1) {
+    dailyCounts[index % dailyCounts.length] += 1;
+  }
+
+  const hourWeights = [2, 1, 1, 1, 1, 2, 4, 7, 11, 15, 18, 21, 24, 25, 23, 22, 24, 28, 33, 37, 40, 35, 23, 11];
+  const countryWeights = [39, 21, 18, 9, 8, 5];
+  const categoryWeights = [26, 23, 18, 17, 16];
+  const paymentWeightsByCountry = {
+    英国: [22, 15, 10, 2, 43, 5, 3],
+    法国: [23, 12, 9, 3, 45, 5, 3],
+    德国: [19, 9, 8, 2, 42, 8, 12],
+    荷兰: [21, 10, 8, 3, 42, 9, 7],
+    比利时: [22, 10, 8, 3, 44, 7, 6],
+    卢森堡: [24, 11, 8, 2, 45, 5, 5],
+  };
+
+  let globalIndex = 0;
+  days.forEach((day, dayIndex) => {
+    const date = day.toISOString().slice(0, 10);
+    const progress = dayIndex / Math.max(1, days.length - 1);
+    for (let dayRecord = 0; dayRecord < dailyCounts[dayIndex]; dayRecord += 1) {
+      const newCustomerRate = 0.41 - 0.07 * progress;
+      const customerType = random() < newCustomerRate ? '新客' : '老客';
+      const country = weightedPick(DIMENSIONS.country.options, countryWeights, random);
+      const category = weightedPick(DIMENSIONS.category.options, categoryWeights, random);
+      const paymentMethod = weightedPick(DIMENSIONS.paymentMethod.options, paymentWeightsByCountry[country], random);
+      const highAmountRate = {
+        手机通讯: 0.43,
+        电脑办公: 0.5,
+        家用电器: 0.34,
+        美妆个护: 0.12,
+        运动户外: 0.18,
+      }[category] + (customerType === '老客' ? 0.025 : 0);
+      const amountBand = random() < highAmountRate ? '€500以上' : '€500以下';
+      const userId = `U${String(Math.floor(globalIndex * 0.78) + 10001)}`;
+      const registered = customerType === '新客' && random() < 0.7 ? 1 : 0;
+      const hour = String(weightedPick([...Array(24).keys()], hourWeights, random)).padStart(2, '0');
+      const minute = String(Math.floor(random() * 60)).padStart(2, '0');
+
+      const isHighAmount = amountBand === '€500以上';
+      const isNewCustomer = customerType === '新客';
+      const initRate = 0.016 + (isNewCustomer ? 0.008 : 0) + (isHighAmount ? 0.007 : 0) + (paymentMethod === 'Card' ? 0.004 : 0);
+      const retailRate = 0.022 + (isNewCustomer ? 0.019 : 0) + (isHighAmount ? 0.014 : 0);
+      const techIncident = date >= '2026-08-20' && date <= '2026-08-26' && isNewCustomer && isHighAmount;
+      const techRate = 0.03 + (isNewCustomer ? 0.021 : 0) + (isHighAmount ? 0.02 : 0) + (techIncident ? 0.1 : 0);
+      const threeDsIncident = date >= '2026-07-12' && date <= '2026-07-18' && country === '英国' && paymentMethod === 'Card';
+      const threeDsRate = 0.02 + (paymentMethod === 'Card' ? 0.025 : 0) + (isNewCustomer ? 0.008 : 0) + (country === '英国' || country === '法国' ? 0.008 : 0) + (threeDsIncident ? 0.13 : 0);
+      const payingIncident = date >= '2026-09-10' && date <= '2026-09-14' && country === '法国' && paymentMethod === 'PayPal';
+      const payingRate = 0.026 + (isHighAmount ? 0.007 : 0) + (paymentMethod === 'Riverty' ? 0.01 : 0) + (payingIncident ? 0.09 : 0);
+
+      const initLoss = random() < initRate ? 1 : 0;
+      const retailRiskLoss = !initLoss && random() < retailRate ? 1 : 0;
+      const techRiskLoss = !initLoss && !retailRiskLoss && random() < techRate ? 1 : 0;
+      const threeDsLoss = !initLoss && !retailRiskLoss && !techRiskLoss && random() < threeDsRate ? 1 : 0;
+      const payingLoss = !initLoss && !retailRiskLoss && !techRiskLoss && !threeDsLoss && random() < payingRate ? 1 : 0;
+      const success = initLoss || retailRiskLoss || techRiskLoss || threeDsLoss || payingLoss ? 0 : 1;
+
+      records.push({
+        orderId: `O${String(globalIndex + 1).padStart(6, '0')}`,
+        userId,
+        date,
+        time: `${date} ${hour}:${minute}`,
+        customerType,
+        country,
+        amountBand,
+        category,
+        paymentMethod,
+        registered,
+        submitted: 1,
+        initLoss,
+        retailRiskLoss,
+        techRiskLoss,
+        threeDsLoss,
+        payingLoss,
+        success,
+      });
+      globalIndex += 1;
+    }
+  });
 
   return records;
 }

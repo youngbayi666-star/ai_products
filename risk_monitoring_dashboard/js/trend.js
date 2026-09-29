@@ -9,7 +9,7 @@ import {
 } from './query-engine.js';
 
 const records = createMockRecords();
-const DATA_RANGE_START = '2026-08-01';
+const DATA_RANGE_START = '2026-06-01';
 const DATA_RANGE_END = '2026-09-29';
 const TIME_GRAINS = { hour: '小时', day: '日', week: '周', biweek: '双周', month: '月' };
 const CHART_COLORS = ['#2563eb', '#7c3aed', '#d97706', '#059669', '#db2777', '#475569', '#0891b2', '#b45309'];

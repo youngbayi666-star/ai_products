@@ -24,6 +24,49 @@ test('mock records are deterministic and expose every supported dimension', () =
   }
 });
 
+test('mock history covers June through September with enough daily volume', () => {
+  const records = createMockRecords();
+  const dates = records.map((record) => record.date).sort();
+
+  assert.equal(dates[0], '2026-06-01');
+  assert.equal(dates.at(-1), '2026-09-29');
+  assert.ok(records.length >= 12000);
+});
+
+test('mock traffic follows realistic weekly and hourly demand patterns', () => {
+  const records = createMockRecords();
+  const weekday = records.filter((record) => {
+    const day = new Date(`${record.date}T00:00:00Z`).getUTCDay();
+    return day >= 1 && day <= 5;
+  });
+  const weekend = records.filter((record) => {
+    const day = new Date(`${record.date}T00:00:00Z`).getUTCDay();
+    return day === 0 || day === 6;
+  });
+  const weekdayDates = new Set(weekday.map((record) => record.date)).size;
+  const weekendDates = new Set(weekend.map((record) => record.date)).size;
+  const evening = records.filter((record) => Number(record.time.slice(11, 13)) >= 18 && Number(record.time.slice(11, 13)) <= 21).length;
+  const overnight = records.filter((record) => Number(record.time.slice(11, 13)) >= 2 && Number(record.time.slice(11, 13)) <= 5).length;
+
+  assert.ok(weekday.length / weekdayDates > weekend.length / weekendDates);
+  assert.ok(evening > overnight * 2);
+});
+
+test('mock funnel keeps a credible success rate and includes a visible 3DS incident', () => {
+  const records = createMockRecords();
+  const successRate = records.filter((record) => record.success).length / records.length;
+  const incident = records.filter((record) => record.date >= '2026-07-12' && record.date <= '2026-07-18' && record.country === '英国' && record.paymentMethod === 'Card');
+  const baseline = records.filter((record) => record.date >= '2026-07-01' && record.date <= '2026-07-07' && record.country === '英国' && record.paymentMethod === 'Card');
+  const incidentRate = incident.filter((record) => record.threeDsLoss).length / incident.length;
+  const baselineRate = baseline.filter((record) => record.threeDsLoss).length / baseline.length;
+
+  assert.ok(successRate > 0.72 && successRate < 0.92);
+  assert.ok(incident.length > 50 && baseline.length > 50);
+  assert.ok(incidentRate > baselineRate + 0.06);
+  assert.ok(records.every((record) => ['initLoss', 'retailRiskLoss', 'techRiskLoss', 'threeDsLoss', 'payingLoss', 'success']
+    .reduce((sum, field) => sum + Number(Boolean(record[field])), 0) === 1));
+});
+
 test('filters intersect across dimensions', () => {
   const records = [
     { userId: 'u1', customerType: '新客', country: '美国', amountBand: '小额', category: '手机通讯', paymentMethod: '信用卡', submitted: 1 },

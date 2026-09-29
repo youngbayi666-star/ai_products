@@ -6,7 +6,7 @@ const TIME_GRAINS = { hour: '小时', day: '日度', week: '周度', biweek: '�
 const defaultState = {
   metrics: ['submittedOrders', 'successOrders', 'successDau'],
   rowDimensions: ['customerType'],
-  dateRange: { start: '2026-08-01', end: DATA_END_DATE },
+  dateRange: { start: '2026-06-01', end: DATA_END_DATE },
   timeGranularity: 'hour',
   filters: Object.fromEntries(Object.entries(DIMENSIONS).filter(([, value]) => value.filterable !== false).map(([key]) => [key, []])),
 };

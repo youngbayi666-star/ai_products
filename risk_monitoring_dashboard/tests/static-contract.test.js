@@ -82,6 +82,22 @@ test('workbench exposes an editable global date range', async () => {
   assert.match(html, /data-date-preset="30"/);
 });
 
+test('table and trend views expose history beginning in June', async () => {
+  const [tableHtml, trendHtml, tableApp, trendApp] = await Promise.all([
+    readFile(new URL('index.html', projectUrl), 'utf8'),
+    readFile(new URL('trend.html', projectUrl), 'utf8'),
+    readFile(new URL('js/app.js', projectUrl), 'utf8'),
+    readFile(new URL('js/trend.js', projectUrl), 'utf8'),
+  ]);
+
+  for (const html of [tableHtml, trendHtml]) {
+    assert.match(html, /min="2026-06-01"/);
+    assert.match(html, /value="2026-06-01"/);
+  }
+  assert.match(tableApp, /dateRange:\s*\{ start: '2026-06-01'/);
+  assert.match(trendApp, /DATA_RANGE_START = '2026-06-01'/);
+});
+
 test('auto query can be enabled and refreshes after configuration changes', async () => {
   const [html, app, css] = await Promise.all([
     readFile(new URL('index.html', projectUrl), 'utf8'),
