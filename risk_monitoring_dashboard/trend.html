@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="风控监控趋势分析工作台" />
+    <title>风险趋势分析</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <strong>Risk Lens</strong>
+        <span class="top-divider"></span>
+        <nav class="view-switcher" aria-label="分析视图">
+          <a href="./index.html">透视分析</a>
+          <a class="active" href="./trend.html" aria-current="page">趋势分析</a>
+        </nav>
+      </div>
+      <div class="topbar-actions">
+        <span class="data-badge"><span></span>小时级仿真数据</span>
+      </div>
+    </header>
+
+    <main class="trend-page" aria-label="趋势分析工作台">
+      <aside class="trend-sidebar" aria-label="趋势分析配置">
+        <div class="trend-sidebar-head">
+          <span class="section-kicker">ANALYSIS SETUP</span>
+          <h1>分析配置</h1>
+          <p>自由选择指标和拆分维度，定位异动来源。</p>
+        </div>
+
+        <section class="trend-field">
+          <div class="trend-field-title"><label>指标</label><span>可多选</span></div>
+          <div class="trend-metrics" id="trend-metrics" aria-label="选择趋势指标"></div>
+        </section>
+
+        <section class="trend-field">
+          <div class="trend-field-title"><label>拆分维度</label><span>支持交叉组合</span></div>
+          <div class="trend-dimensions" id="trend-dimensions" aria-label="选择拆分维度"></div>
+        </section>
+
+        <section class="trend-field">
+          <div class="trend-field-title"><label>筛选范围</label><span>全部条件取交集</span></div>
+          <div class="trend-filters" id="trend-filters" aria-label="选择筛选条件"></div>
+        </section>
+
+        <div class="trend-sidebar-action">
+          <button class="primary-button" id="update-trend" type="button">应用配置</button>
+          <p>指标和维度变更会即时预览。</p>
+        </div>
+      </aside>
+
+      <section class="trend-workbench" aria-label="趋势分析结果">
+        <div class="trend-titlebar">
+          <div>
+            <span class="section-kicker">RISK MONITORING</span>
+            <h1>风险指标趋势分析</h1>
+          </div>
+          <p><span id="active-date-label">2026-08-01 至 2026-09-29</span> · 最近更新 11:20</p>
+        </div>
+
+        <section class="trend-toolbar" aria-label="趋势时间与视窗配置">
+          <div class="toolbar-group toolbar-time">
+            <label>时间范围</label>
+            <div class="date-range">
+              <input id="date-start" type="date" min="2026-08-01" max="2026-09-29" value="2026-08-01" aria-label="开始日期">
+              <span>至</span>
+              <input id="date-end" type="date" min="2026-08-01" max="2026-09-29" value="2026-09-29" aria-label="结束日期">
+            </div>
+          </div>
+          <div class="toolbar-group">
+            <label for="time-grain">时间粒度</label>
+            <select id="time-grain">
+              <option value="hour" selected>小时</option>
+              <option value="day">日度</option>
+              <option value="week">周度</option>
+              <option value="biweek">双周</option>
+              <option value="month">月度</option>
+            </select>
+          </div>
+          <div class="toolbar-group">
+            <label>移动平均</label>
+            <div class="trend-moving-averages" id="trend-moving-averages" aria-label="选择移动平均">
+              <label class="config-check"><input type="checkbox" value="3" id="ma3"><span>MA3</span></label>
+              <label class="config-check"><input type="checkbox" value="7" id="ma7"><span>MA7</span></label>
+              <label class="config-check"><input type="checkbox" value="30" id="ma30"><span>MA30</span></label>
+            </div>
+          </div>
+          <div class="viewport-controls" aria-label="图表视窗控制">
+            <button id="zoom-in" type="button" aria-label="放大时间视窗" title="放大">＋</button>
+            <button id="zoom-out" type="button" aria-label="缩小时间视窗" title="缩小">−</button>
+            <span></span>
+            <button id="pan-prev" type="button" aria-label="向前移动时间视窗" title="向前">‹</button>
+            <button id="pan-next" type="button" aria-label="向后移动时间视窗" title="向后">›</button>
+            <button id="reset-viewport" class="reset-viewport" type="button">查看全部</button>
+          </div>
+        </section>
+
+        <div class="trend-contextbar">
+          <div><strong id="chart-visible-range"></strong><span id="chart-zoom-hint">滚轮缩放 · 拖拽平移 · 双击复位</span></div>
+          <p id="series-warning" role="status"></p>
+        </div>
+
+        <section class="chart-panel" aria-labelledby="chart-title">
+          <div class="chart-header">
+            <div>
+              <h2 id="chart-title">指标走势 <span class="chart-mode">LINE</span></h2>
+              <p id="chart-subtitle">按时间查看查询结果</p>
+            </div>
+          </div>
+          <div class="chart-meta">
+            <div class="chart-legend" id="chart-legend" aria-label="图例"></div>
+          </div>
+          <div class="chart-stage">
+            <div class="chart-canvas" id="trend-chart" aria-label="查询结果折线图"></div>
+            <div class="chart-tooltip" id="chart-tooltip" hidden></div>
+          </div>
+          <div class="chart-navigator" aria-label="当前时间窗口">
+            <div class="chart-navigator-track"><span id="chart-navigator-window"></span></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./js/trend.js"></script>
+  </body>
+</html>

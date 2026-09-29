@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="借鉴 DataWind 交互模式的支付链路自助查数操作台 Demo" />
+    <title>支付链路查数操作台</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <strong>Risk Lens</strong>
+        <span class="top-divider"></span>
+        <nav class="view-switcher" aria-label="分析视图">
+          <a class="active" href="./index.html" aria-current="page">透视分析</a>
+          <a href="./trend.html">趋势分析</a>
+        </nav>
+      </div>
+      <div class="topbar-actions">
+        <span class="data-badge"><span></span>仿真数据</span>
+        <button class="quiet-button" id="reset-query" type="button">恢复默认</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="field-library" aria-label="字段库">
+        <div class="dataset-head">
+          <div class="dataset-icon" aria-hidden="true">▦</div>
+          <div><h2>支付链路明细</h2><p>payment_funnel_hourly</p></div>
+        </div>
+        <div class="library-tabs" role="tablist" aria-label="字段库视图">
+          <button class="active" role="tab" aria-selected="true" type="button">字段</button>
+          <button role="tab" aria-selected="false" type="button">图表</button>
+        </div>
+        <label class="field-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="field-search" type="search" placeholder="搜索指标或维度" autocomplete="off" />
+        </label>
+
+        <section class="library-section">
+          <div class="library-title"><span><i class="dimension-dot"></i>维度</span><small>点击添加到行</small></div>
+          <div class="dimension-options" id="row-dimensions"></div>
+        </section>
+        <section class="library-section metrics-section">
+          <div class="library-title"><span><i class="metric-dot"></i>指标</span><small id="metric-count">0 已选</small></div>
+          <div class="metric-options" id="metric-options" aria-label="指标选择"></div>
+        </section>
+        <div class="library-note"><span>i</span>字段配置仅用于演示，数据不会上传。</div>
+      </aside>
+
+      <section class="analysis-workbench" aria-label="查询配置与结果">
+        <div class="workbench-titlebar">
+          <div><h1>支付链路透视表</h1><span id="draft-state">已同步</span></div>
+          <p><span id="active-date-label">2026-08-01 至 2026-09-29</span> · 最近更新 11:20</p>
+        </div>
+
+        <section class="query-shelves" aria-label="透视表字段配置">
+          <div class="shelf-row time-shelf">
+            <div class="shelf-label"><span class="shelf-icon time-icon" aria-hidden="true">◷</span>时间轴</div>
+            <div class="shelf-content time-controls">
+              <div class="date-range" aria-label="查询日期范围">
+                <input id="date-start" type="date" min="2026-08-01" max="2026-09-29" value="2026-08-01" aria-label="开始日期">
+                <span>至</span>
+                <input id="date-end" type="date" min="2026-08-01" max="2026-09-29" value="2026-09-29" aria-label="结束日期">
+              </div>
+              <div class="date-presets" aria-label="快捷日期范围">
+                <button type="button" data-date-preset="7">近 7 天</button>
+                <button type="button" data-date-preset="14">近 14 天</button>
+                <button class="active" type="button" data-date-preset="30">近 30 天</button>
+              </div>
+            </div>
+          </div>
+          <div class="shelf-row">
+            <div class="shelf-label"><span class="shelf-icon row-icon" aria-hidden="true">☰</span>行维度</div>
+            <div class="shelf-content shelf-chips" id="row-shelf-chips"></div>
+          </div>
+          <div class="shelf-row">
+            <div class="shelf-label"><span class="shelf-icon metric-icon" aria-hidden="true">∑</span>指标</div>
+            <div class="shelf-content shelf-chips" id="metric-shelf-chips"></div>
+          </div>
+          <div class="shelf-row filter-shelf">
+            <div class="shelf-label"><span class="shelf-icon filter-icon" aria-hidden="true">▽</span>筛选</div>
+            <div class="shelf-content filter-options" id="filter-options"></div>
+          </div>
+        </section>
+
+        <div class="query-toolbar">
+          <div class="toolbar-left">
+            <label class="auto-query"><input type="checkbox" disabled><span></span>自动查询</label>
+            <button class="primary-button" id="run-query" type="button"><span class="play-icon" aria-hidden="true">▶</span>查询</button>
+            <button class="tool-button" id="show-query" type="button"><span aria-hidden="true">{ }</span> 查询参数</button>
+          </div>
+          <div class="toolbar-right">
+            <span id="validation-message" role="alert"></span>
+            <span class="query-status" id="query-status"><i></i>查询完成</span>
+            <button class="tool-button" id="fullscreen-table" type="button"><span aria-hidden="true">⛶</span> 全屏</button>
+          </div>
+        </div>
+
+        <div class="result-panel" id="result-panel">
+          <div class="table-card">
+            <div class="table-scroll" tabindex="0" aria-label="查询结果表格，可横向滚动">
+              <table id="result-table"></table>
+            </div>
+            <div class="table-footer"><span id="row-count">0 行结果</span><span>模拟查询耗时 186 ms · DAU 按用户去重</span></div>
+          </div>
+
+          <div class="empty-state" id="empty-state" hidden>
+            <div class="empty-glyph" aria-hidden="true">∅</div><h3>当前组合没有数据</h3><p>调整筛选条件后重新查询。</p>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <dialog id="query-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-header">
+        <div><span>技术联调</span><h2 id="dialog-title">本次查询参数</h2></div>
+        <button class="icon-button" id="close-dialog" type="button" aria-label="关闭">×</button>
+      </div>
+      <p class="dialog-copy">前端可按此结构调用聚合查询接口。空筛选数组代表“全部”。</p>
+      <pre id="query-json"></pre>
+      <div class="dialog-actions"><span id="copy-status" role="status"></span><button class="outline-button" id="copy-query" type="button">复制 JSON</button></div>
+    </dialog>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
