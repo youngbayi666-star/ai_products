@@ -82,6 +82,22 @@ test('workbench exposes an editable global date range', async () => {
   assert.match(html, /data-date-preset="30"/);
 });
 
+test('auto query can be enabled and refreshes after configuration changes', async () => {
+  const [html, app, css] = await Promise.all([
+    readFile(new URL('index.html', projectUrl), 'utf8'),
+    readFile(new URL('js/app.js', projectUrl), 'utf8'),
+    readFile(new URL('css/styles.css', projectUrl), 'utf8'),
+  ]);
+
+  assert.match(html, /id="auto-query" type="checkbox"/);
+  assert.doesNotMatch(html, /id="auto-query"[^>]*disabled/);
+  assert.match(app, /autoQuery:\s*byId\('auto-query'\)/);
+  assert.match(app, /function scheduleAutoQuery\(\)/);
+  assert.match(app, /clearTimeout\(autoQueryTimer\)/);
+  assert.ok((app.match(/scheduleAutoQuery\(\);/g) || []).length >= 6);
+  assert.match(css, /\.auto-query input:checked \+ span/);
+});
+
 test('time is a normal dimension and its five display grains live in the filter shelf', async () => {
   const [engine, app] = await Promise.all([
     readFile(new URL('js/query-engine.js', projectUrl), 'utf8'),

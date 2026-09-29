@@ -15,6 +15,7 @@ let draft = structuredClone(defaultState);
 let active = structuredClone(defaultState);
 let currentResult = null;
 let sortState = null;
+let autoQueryTimer = null;
 const byId = (id) => document.getElementById(id);
 const elements = {
   metricOptions: byId('metric-options'),
@@ -24,6 +25,7 @@ const elements = {
   metricShelfChips: byId('metric-shelf-chips'),
   filterOptions: byId('filter-options'),
   fieldSearch: byId('field-search'),
+  autoQuery: byId('auto-query'),
   runQuery: byId('run-query'),
   resetQuery: byId('reset-query'),
   validation: byId('validation-message'),
@@ -142,6 +144,13 @@ function markChanged() {
   elements.draftState.classList.toggle('changed', changed);
 }
 
+function scheduleAutoQuery() {
+  clearTimeout(autoQueryTimer);
+  if (!elements.autoQuery.checked) return;
+  elements.queryStatus.innerHTML = '<i></i>等待自动查询…';
+  autoQueryTimer = setTimeout(executeQuery, 300);
+}
+
 function buildPayload(state) {
   return {
     dataset: 'payment_funnel_hourly',
@@ -198,6 +207,8 @@ function renderTable(result) {
 }
 
 function executeQuery() {
+  clearTimeout(autoQueryTimer);
+  autoQueryTimer = null;
   if (!draft.metrics.length) {
     elements.validation.textContent = '请至少选择一个指标。';
     elements.metricOptions.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -227,6 +238,7 @@ elements.metricOptions.addEventListener('change', (event) => {
   renderShelfChips();
   elements.validation.textContent = '';
   markChanged();
+  scheduleAutoQuery();
 });
 
 elements.rowDimensions.addEventListener('change', (event) => {
@@ -234,6 +246,7 @@ elements.rowDimensions.addEventListener('change', (event) => {
   draft.rowDimensions = event.target.checked ? [...draft.rowDimensions, key] : draft.rowDimensions.filter((item) => item !== key);
   renderDimensions();
   markChanged();
+  scheduleAutoQuery();
 });
 
 elements.rowShelfChips.addEventListener('click', (event) => {
@@ -242,6 +255,7 @@ elements.rowShelfChips.addEventListener('click', (event) => {
   draft.rowDimensions = draft.rowDimensions.filter((item) => item !== key);
   renderDimensions();
   markChanged();
+  scheduleAutoQuery();
 });
 
 elements.metricShelfChips.addEventListener('click', (event) => {
@@ -250,6 +264,7 @@ elements.metricShelfChips.addEventListener('click', (event) => {
   draft.metrics = draft.metrics.filter((item) => item !== key);
   renderMetrics();
   markChanged();
+  scheduleAutoQuery();
 });
 
 elements.filterOptions.addEventListener('change', (event) => {
@@ -259,6 +274,7 @@ elements.filterOptions.addEventListener('change', (event) => {
     renderFilters();
     renderShelfChips();
     markChanged();
+    scheduleAutoQuery();
     return;
   }
   const dimension = event.target.dataset.dimension;
@@ -272,6 +288,7 @@ elements.filterOptions.addEventListener('change', (event) => {
   }
   renderFilters();
   markChanged();
+  scheduleAutoQuery();
 });
 
 [elements.dateStart, elements.dateEnd].forEach((input) => input.addEventListener('change', () => {
@@ -279,14 +296,17 @@ elements.filterOptions.addEventListener('change', (event) => {
   renderTimeControls();
   elements.validation.textContent = '';
   markChanged();
+  scheduleAutoQuery();
 }));
 elements.datePresets.forEach((button) => button.addEventListener('click', () => {
   draft.dateRange = presetRange(Number(button.dataset.datePreset));
   renderTimeControls();
   elements.validation.textContent = '';
   markChanged();
+  scheduleAutoQuery();
 }));
 
+elements.autoQuery.addEventListener('change', scheduleAutoQuery);
 elements.runQuery.addEventListener('click', executeQuery);
 elements.table.addEventListener('click', (event) => {
   const button = event.target.closest('.sort-control');

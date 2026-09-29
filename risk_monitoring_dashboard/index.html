@@ -88,13 +88,13 @@
 
         <div class="query-toolbar">
           <div class="toolbar-left">
-            <label class="auto-query"><input type="checkbox" disabled><span></span>自动查询</label>
+            <label class="auto-query"><input id="auto-query" type="checkbox"><span aria-hidden="true"></span>自动查询</label>
             <button class="primary-button" id="run-query" type="button"><span class="play-icon" aria-hidden="true">▶</span>查询</button>
             <button class="tool-button" id="show-query" type="button"><span aria-hidden="true">{ }</span> 查询参数</button>
           </div>
           <div class="toolbar-right">
             <span id="validation-message" role="alert"></span>
-            <span class="query-status" id="query-status"><i></i>查询完成</span>
+            <span class="query-status" id="query-status" role="status"><i></i>查询完成</span>
             <button class="tool-button" id="fullscreen-table" type="button"><span aria-hidden="true">⛶</span> 全屏</button>
           </div>
         </div>
